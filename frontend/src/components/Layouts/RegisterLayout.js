@@ -1,6 +1,6 @@
-import './Layout_Register.css'
+import './RegisterLayout.css'
 
-const Layout_Register = ({children}) => {
+const RegisterLayout = ({children}) => {
     return (
         <div className='LayoutRegister'>
             <header>
@@ -13,6 +13,6 @@ const Layout_Register = ({children}) => {
     );
 }
 
-export default Layout_Register;
+export default RegisterLayout;
 
 

@@ -54,7 +54,7 @@ server.post('/login', (req, res) => {
             if (result.length > 0) {
                 // The provided email and password match a record in the database
                 req.session.user = { email };
-                return res.send({ success: true, message: "Login successful" });
+                return res.send({ success: true, message: "LoginForm successful" });
             } else {
                 // The provided email and password do not match any records in the database
                 return res.status(401).send({ success: false, message: "Email or password is incorrect" });

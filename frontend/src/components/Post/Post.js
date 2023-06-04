@@ -1,7 +1,7 @@
 import React from "react";
-import './UserPost.css'
+import './Post.css'
 
-const UserPost = ({ username, handle, date, content, likes, comments }) => {
+const Post = ({ username, handle, date, content, likes, comments }) => {
     return (
         <div className="user-post">
             <div className="user-post-header">
@@ -24,4 +24,4 @@ const UserPost = ({ username, handle, date, content, likes, comments }) => {
     );
 };
 
-export default UserPost;
+export default Post;

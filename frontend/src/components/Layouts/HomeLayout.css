@@ -21,8 +21,8 @@ header {
 
 
 .MainContentHome {
-    height: 100%;
-    margin-top: 10px;
+    flex-grow: 1;
+    margin-top: 65px;
     padding-bottom: 10px;
     background-color: white;
     color: white;

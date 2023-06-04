@@ -1,0 +1,42 @@
+
+
+Header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 65px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center ;
+    text-align: left;
+
+}
+
+
+
+.MainContentUserProfile {
+    color: black;
+}
+
+.MainContentUserProfile .profile-container {
+    display: flex;
+    margin-left: 13%;
+    margin-top: 50px; /* Adjust this value to provide enough space for the header */
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.MainContentUserProfile .profile-picture img {
+    width: 200px;
+    height: 200px;
+}
+
+.MainContentUserProfile .profile-posts {
+    width: 100%;
+    min-height: 100vh;
+}
+
+

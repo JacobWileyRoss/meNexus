@@ -1,8 +1,8 @@
-import './NavigationPanel.css'
+import './Navigation.css'
 import {NavLink} from "react-router-dom";
 import React, {useState} from "react";
 
-const NavigationPanel = ({color, textColor, fontSize}) => {
+const Navigation = ({color, textColor, fontSize}) => {
     return (
         <header className='NavigationPanel' style={{backgroundColor:color, color:textColor, fontSize: fontSize}}>
             <nav>
@@ -25,4 +25,4 @@ const NavigationPanel = ({color, textColor, fontSize}) => {
     )
 };
 
-export default NavigationPanel;
+export default Navigation;

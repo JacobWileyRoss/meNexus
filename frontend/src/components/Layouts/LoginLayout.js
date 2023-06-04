@@ -1,10 +1,10 @@
-import './Layout_Login.css'
+import './LoginLayout.css'
 
-const Layout_Login = ({children}) => {
+const LoginLayout = ({children}) => {
     return (
         <div className='LayoutLogin'>
             <header>
-                enkitheymystik.com
+                meNexus
             </header>
             <main className='MainContentLogin'>
                 {children}
@@ -13,6 +13,6 @@ const Layout_Login = ({children}) => {
     );
 }
 
-export default Layout_Login;
+export default LoginLayout;
 
 

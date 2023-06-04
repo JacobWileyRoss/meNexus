@@ -1,8 +1,8 @@
-import './ActivityPanel.css'
+import './Activity.css'
 import {NavLink} from "react-router-dom";
 import React, {useState} from "react";
 
-const ActivityPanel = ({color, textColor, fontSize}) => {
+const Activity = ({color, textColor, fontSize}) => {
     return (
         <header className='ActivityPanel' style={{backgroundColor:color, color:textColor, fontSize: fontSize}}>
             <nav>
@@ -19,4 +19,4 @@ const ActivityPanel = ({color, textColor, fontSize}) => {
     )
 };
 
-export default ActivityPanel;
+export default Activity;
