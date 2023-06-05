@@ -34,11 +34,11 @@ const createUser = async (email, password, handle, username) => {
 
 const getUserByEmail = async (email) => {
     console.log("getUserByEmail FIRED!");
-    console.log(email);
+    console.log(email.email);
     try {
         const query = 'SELECT * FROM Users WHERE email = ?';
         const result = await executeQuery(query, email);
-        console.log(result);
+        //console.log(result);
         return result[0];
     } catch (error) {
         throw new Error(error);

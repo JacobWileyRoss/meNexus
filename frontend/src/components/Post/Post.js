@@ -1,7 +1,20 @@
 import React from "react";
-import './Post.css'
+import "./Post.css";
 
-const Post = ({ username, handle, date, content, likes, comments }) => {
+const Post = ({
+                  username,
+                  handle,
+                  date,
+                  content,
+                  likes,
+                  comments,
+                  onEdit,
+                  onDelete,
+                  isEditing,
+                  editedContent,
+                  onContentChange,
+                  onSave,
+              }) => {
     return (
         <div className="user-post">
             <div className="user-post-header">
@@ -14,11 +27,23 @@ const Post = ({ username, handle, date, content, likes, comments }) => {
                 </div>
             </div>
             <div className="user-post-content">
-                <p>{content}</p>
+                {isEditing ? (
+                    <textarea value={editedContent} onChange={onContentChange} />
+                ) : (
+                    <p>{content}</p>
+                )}
             </div>
             <div className="user-post-stats">
                 <p className="user-post-stats-likes">{likes} likes </p>
                 <p className="user-post-stats-comments">{comments} comments</p>
+            </div>
+            <div className="user-post-actions">
+                {isEditing ? (
+                    <button onClick={onSave}>Save</button>
+                ) : (
+                    <button onClick={onEdit}>Edit</button>
+                )}
+                <button onClick={onDelete}>Delete</button>
             </div>
         </div>
     );

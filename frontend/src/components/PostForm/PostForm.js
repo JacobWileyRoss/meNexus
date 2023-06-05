@@ -1,15 +1,13 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import './PostForm.css'
 import axios from "axios";
-const PostForm = ({handle}) => {
-    //State variable that keeps track of the form text area and sets prompt text
-    const [text, setText] = useState(`What's on your mind?`);
 
-    //State variable keeps track of whether the text area is expanded after clicking for responsiveness
+const PostForm = ({handle}) => {
+    const [text, setText] = useState(`What's on your mind?`);
+    const [posts, setPosts] = useState([]);
+    const [formClicked, setFormClicked] = useState(false);
     const [expanded, setExpanded] = useState(false);
 
-    //formClicked tracks whether the user has clicked on the form to clear prompt text
-    const [formClicked, setFormClicked] = useState(false);
 
     const styles = {
         textarea: {
@@ -24,28 +22,43 @@ const PostForm = ({handle}) => {
             content: text,
         };
         console.log(post);
-        // Send the data to the database
         axios
-            .post("/createPost", { content: text })
+            .post("http://localhost:3001/createPost", post)
             .then((response) => {
-                // Handle the response as needed
-
                 console.log(response.data);
-                // Reset the text field after posting
                 setText("");
             })
             .catch((error) => {
-                // Handle any errors that occur during the request
                 console.error(error);
             });
     };
 
+
+    const fetchPosts = () => {
+        axios
+            .get(`http://localhost:3001/getUserPosts/${handle}`)
+            .then((response) => {
+                console.log(response.data);
+                setPosts(response.data); // Update the 'posts' state with the fetched posts
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    };
+
+    useEffect(() => {
+        fetchPosts(); // Fetch posts when the component mounts
+    }, [handle]); // Fetch posts when the 'handle' prop changes
+
+
     const handleFormClick = () => {
-        if (!formClicked) {
+        if (!formClicked && text === `What's on your mind?`) {
             setText("");
         }
         setFormClicked(true);
     };
+
+
 
 
     return (
@@ -60,6 +73,7 @@ const PostForm = ({handle}) => {
                 />
             </div>
             <button onClick={handleSubmit}>Post</button>
+
         </div>
     );
 }

@@ -18,11 +18,13 @@ server.use(morgan('combined'));
 server.use(bodyParser.json());
 server.use(express.json());
 
-// Use Express session middleware
+
+// Initialize session middleware
+// Initialize session middleware
 server.use(session({
-    secret: 'secret',
+    secret: 'your-secret-key',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
 }));
 
 // Use Passport middleware
@@ -66,6 +68,7 @@ passport.use(new LocalStrategy(
         try {
             // Find the user by their email
             const user = await User.getUserByEmail(email);
+            console.log('Strategy User object: ', user);
 
             // If the user doesn't exist, return an error
             if (!user) {
@@ -92,20 +95,17 @@ passport.use(new LocalStrategy(
     }
 ));
 
-
 // Serialize the user into a session
 passport.serializeUser((user, done) => {
-    done(null, user.email);
+    console.log('serializing: ', user);
+    done(null, user);
 });
 
-// Deserialize the user from a session
-passport.deserializeUser(async (email, done) => {
-    try {
-        const user = await User.getUserByEmail(email);
-        done(null, user);
-    } catch (error) {
-        done(error);
-    }
+passport.deserializeUser((email, done) => {
+    User.getUserByEmail({ email: email }, (err, user) => {
+        console.log('deserializing: ', user);
+        done(err, user);
+    });
 });
 
 ///////////////////////////////////////////API endpoints///////////////////////////////////////////
@@ -148,8 +148,8 @@ server.post('/createUser', async (req, res) => {
     }
 });
 
-
 // Server call to handle login request
+// TODO I don't think the login is correctly serializing user data to the session
 server.post('/login', (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
         if (err) {
@@ -168,12 +168,14 @@ server.post('/login', (req, res, next) => {
                 return res.status(500).json({ error: 'An error occurred' });
             }
             // Authentication successful
-            return res.json({ message: 'Login successful' });
+
+            console.log('req.user returns the following:')
+            console.log(req.user);
+            return res.json({ message: 'Login successful', handle: user.handle });
         });
+
     })(req, res, next);
 });
-
-
 
 
 //Server call that queries meNexus database for all user accounts
@@ -189,8 +191,7 @@ server.get('/getUsers', (req, res) => {
     })
 });
 
-// Server call that queries meNexus database for a profile from specified user_id
-// TODO Calls to getProfile use a hardcoded URL to specify the user_id instead of using a variable
+// Server call that queries meNexus database for a profile from specified handle
 server.get('/getProfile/:handle', (req, res) => {
     const handle = req.params.handle;
     let sql = `
@@ -212,7 +213,31 @@ server.get('/getProfile/:handle', (req, res) => {
 
 
 
-//Server call that queries database for all posts from a specified user_id
+// Server call that queries meNexus session for current user object
+// Middleware function to check session data
+const checkSessionData = (req, res, next) => {
+    console.log('Session Data:');
+    console.log(req.session);
+    next(); // Move to the next middleware or route handler
+};
+
+// Use the checkSessionData middleware
+server.use(checkSessionData);
+
+// Server call that queries meNexus session for current user object
+server.get('/getCurrentUser', (req, res) => {
+    const user = req.session.user;
+
+    if (user && user.handle) {
+        // Return the handle of the currently logged-in user
+        res.json({ handle: user.handle });
+    } else {
+        res.status(401).json({ error: 'User not authenticated' });
+    }
+});
+
+
+//Server call that queries database for all posts from a specified handle
 //TODO Creating a request in Postman does not generate a URL that matches this style. Why?
 server.get('/getUserPosts/:handle', (req, res) => {
     const handle = req.params.handle || req.query.handle;
@@ -234,30 +259,93 @@ server.get('/getUserPosts/:handle', (req, res) => {
     });
 });
 
-
-// Server call to gather and render all posts from a friends lists tied to specified user_id
-server.get('/getFriendsPosts/:userID', (req, res) => {
-    const userID = req.params.userID;
+// Server call to gather and render all posts from a friends lists tied to specified handle
+// TODO Implement logic for this function as its just boilerplate
+server.get('/getFriendsPosts/:handle', (req, res) => {
+    const userID = req.params.handle;
 })
-
 
 // API endpoint for submitting a post
 //TODO Write api call for submitting a post, below is barely above boilerplate
-server.post("/submitPost", (req, res) => {
-    const { text } = req.body;
+// API endpoint for submitting a post
+server.post("/createPost", (req, res) => {
+    const { content, handle } = req.body;
 
-    // Insert the post into the database
-    const sql = "INSERT INTO Posts (content) VALUES (?)";
-    meNexus.query(sql, [text], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).json({ error: "Failed to submit the post." });
+    // Fetch the user_id based on the handle
+    const userSql = "SELECT user_id FROM Users WHERE handle = ?";
+    meNexus.query(userSql, [handle], (userErr, userResult) => {
+        if (userErr) {
+            console.error(userErr);
+            return res.status(500).json({ error: "Failed to fetch user data." });
+        }
+
+        if (userResult.length === 0) {
+            return res.status(404).json({ error: "User not found." });
+        }
+
+        const user_id = userResult[0].user_id;
+
+        // Insert the post into the database
+        const postSql = "INSERT INTO Posts (content, user_id) VALUES (?, ?)";
+        meNexus.query(postSql, [content, user_id], (postErr, postResult) => {
+            if (postErr) {
+                console.error(postErr);
+                return res.status(500).json({ error: "Failed to submit the post." });
+            }
+
+            // Return a success response
+            return res.json({ message: "Post submitted successfully." });
+        });
+    });
+});
+
+// Update an existing post
+server.put("/updatePost/:postId", (req, res) => {
+    const postId = req.params.postId;
+    const updatedContent = req.body.content; // Assuming the updated content is sent in the request body
+
+    // Update the post in your database
+    const updateSql = "UPDATE Posts SET content = ? WHERE post_id = ?";
+    meNexus.query(updateSql, [updatedContent, postId], (updateErr, updateResult) => {
+        if (updateErr) {
+            console.error(updateErr);
+            return res.status(500).json({ error: "Failed to update the post." });
+        }
+
+        // Check if any rows were affected
+        if (updateResult.affectedRows === 0) {
+            return res.status(404).json({ error: "Post not found." });
         }
 
         // Return a success response
-        return res.json({ message: "Post submitted successfully." });
+        return res.json({ message: "Post updated successfully." });
     });
 });
+
+// Api endpoint for deleting a post given a specified postId
+server.delete("/deletePost/:post_id", (req, res) => {
+    const postId = req.params.post_id;
+
+    // Delete the post from the database
+    const deleteSql = "DELETE FROM Posts WHERE post_id = ?";
+    meNexus.query(deleteSql, [postId], (deleteErr, deleteResult) => {
+        if (deleteErr) {
+            console.error(deleteErr);
+            return res.status(500).json({ error: "Failed to delete the post." });
+        }
+
+        // Check if any rows were affected
+        if (deleteResult.affectedRows === 0) {
+            return res.status(404).json({ error: "Post not found." });
+        }
+
+        // Return a success response
+        return res.json({ message: "Post deleted successfully." });
+    });
+});
+
+
+
 
 
 

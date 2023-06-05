@@ -1,20 +1,19 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import {useParams} from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Post from "../Post/Post";
 import PostForm from "../PostForm/PostForm";
-import "./UserProfile.css"
+import "./UserProfile.css";
 
 const UserProfile = () => {
-    const [profile, setProfile] =useState({});
+    const [profile, setProfile] = useState({});
     const [posts, setPosts] = useState([]);
+    const [editingPostId, setEditingPostId] = useState(null);
+    const [editedPostContent, setEditedPostContent] = useState("");
 
-    // This pulls the :handle param from the URL and assigns it to variable called handle
+
     const { handle } = useParams();
 
-    const url = useParams();
-
-    // Function gets the user's profile give the specified handle
     function getProfile() {
         axios.get(`/getProfile/${handle}`).then((response) => {
             let data = response.data;
@@ -25,59 +24,66 @@ const UserProfile = () => {
         });
     }
 
-    // Function gets user's posts give the specified handle
-    function  getUserPosts() {
+    function getUserPosts() {
         axios.get(`/getUserPosts/${handle}`).then((response) => {
             let data = response.data;
             setPosts(data);
             console.log(response.data);
-        })
+        });
+    }
+
+    function handleEdit(postId) {
+        console.log("Editing post:", postId);
+        setEditingPostId(postId);
+
+        // Fetch the current post content and set it as the initial value for editing
+        const postToEdit = posts.find((post) => post.post_id === postId);
+        if (postToEdit) {
+            setEditedPostContent(postToEdit.content);
+        }
+    }
+
+    function handleSave() {
+        // Update the post in the database with the edited content
+        axios
+            .put(`/updatePost/${editingPostId}`, {
+                content: editedPostContent,
+            })
+            .then((response) => {
+                console.log(response.data);
+                setEditingPostId(null);
+                setEditedPostContent("");
+                getUserPosts(); // Refresh the posts after editing the post
+            });
+    }
+
+    function handleDelete(post_id) {
+        console.log("Deleting post:", post_id);
+        axios.delete(`/deletePost/${post_id}`).then((response) => {
+            console.log(response.data);
+            getUserPosts(); // Refresh the posts after deleting the post
+        });
     }
 
     useEffect(() => {
         getProfile();
         getUserPosts();
+    }, []);
 
-    }, []); // The empty array tells React to only run the effect once (when the component mounts)
-
-    //TODO profile-container renders under the header and needs the top-margin corrected
     return (
         <div className="profile-container">
             <div className="profile-header">
-                {/* User UserProfile Picture */}
                 <div className="profile-picture">
-                    <img src={profile.profile_picture}/>
+                    <img src={profile.profile_picture} alt="Profile" />
                 </div>
-
-                {/* User Information */}
                 <div className="profile-info">
                     <h2 className="profile-name">{profile.name}</h2>
                     <p className="profile-bio">{profile.bio}</p>
                     <p className="profile-location">{profile.location}</p>
                 </div>
             </div>
-            {/* User Friends */}
-            {/*
-            <div className="profile-friends">
-                <h3 className="section-title">Friends</h3>
-                {/* List of user friends
-                {user.friends.map((friend) => (
-                    <div className="friend" key={friend.id}>
-                        {/* Friend profile picture
-                        <img src={friend.picture} alt="Friend Picture" />
-                        {/* Friend name */}
-            {/*<p className="friend-name">{friend.name}</p>
-                    </div>
-                ))}
-            </div>
-        */}
-            {/* User Posts */}
             <div className="profile-posts">
-                {/* Form for submitting a new post*/}
-                <PostForm handle={handle}/>
-                {/* List of user posts */}
-                {/* This sorts the posts by date, then maps through it displaying most recent posts
-                    first/on top of feed*/}
+                <PostForm handle={handle} />
                 {posts.length > 0 ? (
                     posts
                         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -90,6 +96,14 @@ const UserProfile = () => {
                                 content={post.content}
                                 comments={post.comment_count}
                                 likes={post.likes}
+                                onDelete={() => handleDelete(post.post_id)}
+                                onEdit={() => handleEdit(post.post_id)} // Pass the handleEdit function as prop
+                                isEditing={editingPostId === post.post_id} // Pass a flag to indicate if the post is being edited
+                                editedContent={editedPostContent}
+                                onContentChange={(event) =>
+                                    setEditedPostContent(event.target.value)
+                                }
+                                onSave={handleSave}
                             />
                         ))
                 ) : (
