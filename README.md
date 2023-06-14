@@ -19,7 +19,7 @@ $ `cd meNexus/frontend`
 $ `npm install`
 ###
 
-Create a `.env` file in 'meNexus/backend' and configure the required environment variables:
+Create a `.env` file in `meNexus/backend` and configure the required environment variables:
 
 `DB_HOST=<database-host>`
 
@@ -61,7 +61,8 @@ This will be an empty page where you can create your first post. Currently, ther
 you have to manually refresh the page after submitting a new post for it to be displayed. As of 6/13, the 
 functionality to create the user profile has not been built. You can manually enter data in the Profiles 
 table of the database for full name/bio/location and a URL to a profile picture. Once the data has been 
-entered into the database, refreshing the page should render the user's profile.
+entered into the database, refreshing the page should render the user's profile. Alternatively, accessing 
+`http://localhost:<express-server-port>/profile/jacob` should render a sample profile page.
 
 ## API Endpoints
 
