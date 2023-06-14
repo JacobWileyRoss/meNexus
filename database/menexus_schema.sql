@@ -160,7 +160,7 @@ CREATE TABLE `Posts` (
 
 LOCK TABLES `Posts` WRITE;
 /*!40000 ALTER TABLE `Posts` DISABLE KEYS */;
-INSERT INTO `Posts` VALUES (50,1,'meNexus v2.1 is live!!!','2023-06-05 05:40:29','2023-06-05 05:40:29'),(51,1,'Does meNexus v2.1 let you edit your posts?\n\nIT DOES!!!','2023-06-05 05:41:37','2023-06-05 05:41:50');
+INSERT INTO `Posts` VALUES (50,1,'meNexus v0.89 is live!!!','2023-06-05 05:40:29','2023-06-05 05:40:29'),(51,1,'Does meNexus v0.89 let you edit your posts?\n\nIT DOES!!!','2023-06-05 05:41:37','2023-06-05 05:41:50');
 /*!40000 ALTER TABLE `Posts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -223,7 +223,7 @@ CREATE TABLE `Users` (
 
 LOCK TABLES `Users` WRITE;
 /*!40000 ALTER TABLE `Users` DISABLE KEYS */;
-INSERT INTO `Users` VALUES (1,'enki','EnkiTheMystik','enki@enkithemystik.com','$2b$10$pSvdNbFXObeKQ7IKCHRzjeCSSZG3zkw1s3gzJNjeFzlrfdXzMU0YK','2023-06-05 05:33:46','2023-06-05 05:38:58');
+INSERT INTO `Users` VALUES (1,'jacob','JacobWileyRoss','jacob@mail.com','$2b$10$6vZ1ZntGfkNCI7CAIHNHZe6e8FITyZcwcfHI2wjWxtS/ylQgjstFC','2023-06-05 05:33:46','2023-06-05 05:38:58');
 /*!40000 ALTER TABLE `Users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
